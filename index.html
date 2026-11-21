@@ -1,121 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#172554">
-  <title>HOME PEX | Electronics & Technology</title>
-  <style>
-    :root{--navy:#172554;--blue:#2563eb;--cyan:#06b6d4;--pink:#ec4899;--orange:#f97316;--green:#16a34a;--ink:#172033;--muted:#64748b;--paper:#f7f9ff}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--paper)}
-    a{text-decoration:none;color:inherit}.topbar{background:var(--navy);color:#fff;text-align:center;padding:9px 14px;font-size:13px}
-    header{background:#fff;position:sticky;top:0;z-index:10;box-shadow:0 2px 14px #17255412}
-    .nav{max-width:1120px;margin:auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:24px;letter-spacing:.5px;color:var(--navy)}
-    .brand-mark{width:39px;height:39px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--pink),var(--orange));display:grid;place-items:center;color:#fff;font-size:21px}
-    .navlinks{display:flex;gap:22px;font-size:14px;font-weight:700;color:#475569}.navlinks a:hover{color:var(--blue)}
-    .btn{display:inline-block;border:0;border-radius:999px;padding:13px 20px;font-weight:800;cursor:pointer;background:var(--blue);color:white;box-shadow:0 8px 20px #2563eb30}
-    .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}.btn-light{background:#fff;color:var(--navy);box-shadow:none}
-    .hero{background:radial-gradient(circle at 80% 20%,#f9a8d455,transparent 25%),radial-gradient(circle at 10% 90%,#67e8f955,transparent 28%),linear-gradient(120deg,#eaf2ff,#fff1f7 55%,#fff7ed);padding:72px 20px 64px}
-    .hero-inner{max-width:1120px;margin:auto;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:35px}
-    .eyebrow{display:inline-block;background:#dbeafe;color:#1d4ed8;border-radius:999px;padding:8px 13px;font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
-    h1{font-size:clamp(40px,6vw,66px);line-height:1.02;letter-spacing:-2px;margin:18px 0;color:var(--navy)}
-    h1 span{background:linear-gradient(90deg,var(--blue),var(--pink),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .hero p{font-size:18px;line-height:1.7;color:#526078;max-width:560px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:25px}
-    .showcase{min-height:300px;border-radius:30px;background:linear-gradient(145deg,#2563eb,#7c3aed 55%,#ec4899);padding:25px;display:grid;place-items:center;position:relative;overflow:hidden;box-shadow:0 25px 55px #4338ca35}
-    .showcase:before,.showcase:after{content:"";position:absolute;border:1px solid #ffffff55;border-radius:50%;width:260px;height:260px}.showcase:after{width:350px;height:350px}
-    .showcase-grid{z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:360px}
-    .showcase-item{background:#ffffffed;border-radius:20px;min-height:112px;display:grid;place-items:center;text-align:center;padding:12px;font-size:35px;box-shadow:0 10px 25px #11182720}
-    .showcase-item b{display:block;font-size:12px;color:var(--navy);margin-top:4px}
-    section{max-width:1120px;margin:auto;padding:60px 20px}.section-head{text-align:center;margin-bottom:30px}.section-head small{color:var(--pink);font-weight:900;text-transform:uppercase;letter-spacing:1.5px}.section-head h2{font-size:34px;color:var(--navy);margin:10px 0}.section-head p{color:var(--muted);margin:0}
-    .categories{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.category{background:#fff;border-radius:20px;padding:23px 15px;text-align:center;box-shadow:0 8px 25px #1725540b;border:1px solid #eef2ff;transition:.2s}.category:hover{transform:translateY(-4px);box-shadow:0 15px 30px #17255414}.category .icon{font-size:38px}.category h3{margin:12px 0 5px;color:var(--navy)}.category p{margin:0;color:var(--muted);font-size:13px}
-    .products{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.product{background:#fff;border-radius:22px;overflow:hidden;border:1px solid #edf0f8;box-shadow:0 8px 25px #1725540a}.product-art{height:155px;display:grid;place-items:center;font-size:65px;background:linear-gradient(135deg,#dbeafe,#fce7f3)}.product:nth-child(2) .product-art{background:linear-gradient(135deg,#cffafe,#e0e7ff)}.product:nth-child(3) .product-art{background:linear-gradient(135deg,#ffedd5,#fce7f3)}.product:nth-child(4) .product-art{background:linear-gradient(135deg,#dcfce7,#dbeafe)}.product:nth-child(5) .product-art{background:linear-gradient(135deg,#ede9fe,#fce7f3)}.product:nth-child(6) .product-art{background:linear-gradient(135deg,#fef3c7,#cffafe)}
-    .product-info{padding:18px}.product-info h3{margin:0 0 7px;color:var(--navy)}.product-info p{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.5}.product-info .btn{font-size:13px;padding:10px 15px}
-    .banner{max-width:1080px;margin:0 auto 55px;padding:35px 30px;border-radius:26px;background:linear-gradient(110deg,var(--navy),#4338ca,#db2777);color:white;display:flex;justify-content:space-between;align-items:center;gap:20px}.banner h2{font-size:28px;margin:0 0 8px}.banner p{margin:0;color:#e0e7ff;line-height:1.5}
-    .about-contact{display:grid;grid-template-columns:1fr 1fr;gap:22px}.info-card{background:#fff;padding:28px;border-radius:22px;border:1px solid #edf0f8}.info-card h2{color:var(--navy);margin-top:0}.info-card p{color:var(--muted);line-height:1.7}.contact-line{padding:10px 0;border-bottom:1px solid #eef2f7;font-weight:700}.contact-line:last-child{border:0}
-    footer{background:#101b3e;color:#dbeafe;text-align:center;padding:28px 18px;font-size:13px}footer strong{color:#fff;font-size:18px}
-    @media(max-width:760px){.nav{flex-wrap:wrap}.navlinks{order:3;width:100%;justify-content:center;gap:16px}.hero{padding:48px 18px}.hero-inner{grid-template-columns:1fr}.showcase{min-height:250px}.categories{grid-template-columns:repeat(2,1fr)}.products{grid-template-columns:repeat(2,1fr)}.banner{margin:0 15px 35px;display:block}.banner .btn{margin-top:18px}.about-contact{grid-template-columns:1fr}}
-    @media(max-width:420px){.brand{font-size:21px}.navlinks{font-size:12px}.products{grid-template-columns:1fr}.product-art{height:135px}.section-head h2{font-size:29px}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOME PEX | Online Store</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f4f6fa;
+    color: #222;
+}
+
+header {
+    background: #101b35;
+    color: white;
+    padding: 22px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 30px;
+    letter-spacing: 2px;
+}
+
+header p {
+    margin-top: 8px;
+    color: #ddd;
+}
+
+nav {
+    background: #172849;
+    padding: 14px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 12px;
+    font-weight: bold;
+}
+
+.hero {
+    background: linear-gradient(120deg, #101b35, #2855a3);
+    color: white;
+    padding: 65px 20px;
+    text-align: center;
+}
+
+.hero h2 {
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 16px;
+    margin-bottom: 22px;
+}
+
+.hero a {
+    background: #ffb400;
+    color: #111;
+    padding: 13px 25px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.section {
+    padding: 35px 18px;
+}
+
+.section h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #101b35;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+.product {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 3px 12px #0001;
+}
+
+.product .icon {
+    font-size: 65px;
+    margin-bottom: 15px;
+}
+
+.product h3 {
+    margin-bottom: 10px;
+}
+
+.price {
+    color: #1754a5;
+    font-size: 21px;
+    font-weight: bold;
+    margin: 12px;
+}
+
+button {
+    background: #1754a5;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #101b35;
+}
+
+.cart {
+    background: white;
+    max-width: 700px;
+    margin: 25px auto;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.order {
+    max-width: 600px;
+    margin: 25px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 13px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.order button {
+    width: 100%;
+    background: #159447;
+    font-size: 16px;
+}
+
+footer {
+    background: #101b35;
+    color: white;
+    text-align: center;
+    padding: 25px;
+    margin-top: 30px;
+}
+</style>
 </head>
+
 <body>
-  <div class="topbar">Welcome to HOME PEX — your everyday technology store</div>
-  <header>
-    <nav class="nav">
-      <a class="brand" href="#home"><span class="brand-mark">H</span> HOME PEX</a>
-      <div class="navlinks"><a href="#home">Home</a><a href="#categories">Categories</a><a href="#products">Products</a><a href="#contact">Contact</a></div>
-      <a class="btn" href="#products">Shop now</a>
-    </nav>
-  </header>
 
-  <main>
-    <div class="hero" id="home">
-      <div class="hero-inner">
-        <div>
-          <span class="eyebrow">Smart choices start here</span>
-          <h1>Upgrade your world with <span>HOME PEX.</span></h1>
-          <p>Explore smartphones, Smart TVs, computers and everyday tech accessories. Find the technology you need and contact us to ask about availability and prices.</p>
-          <div class="hero-actions"><a class="btn" href="#products">Explore products</a><a class="btn btn-light" href="#contact">Contact us</a></div>
+<header>
+    <h1>HOME PEX</h1>
+    <p>Your Trusted Online Electronics Store</p>
+</header>
+
+<nav>
+    <a href="#home">Home</a>
+    <a href="#products">Products</a>
+    <a href="#cart">My Cart</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<section class="hero" id="home">
+    <h2>Welcome to HOME PEX</h2>
+    <p>Discover quality electronics at affordable prices.</p>
+    <a href="#products">SHOP NOW</a>
+</section>
+
+<section class="section" id="products">
+    <h2>Our Products</h2>
+
+    <div class="products">
+
+        <div class="product">
+            <div class="icon">📺</div>
+            <h3>Samsung Smart TV</h3>
+            <p>Enjoy entertainment with smart technology.</p>
+            <div class="price">$100</div>
+            <button onclick="addToCart('Samsung Smart TV',100)">
+                Add to Cart
+            </button>
         </div>
-        <div class="showcase" aria-label="Electronics categories">
-          <div class="showcase-grid">
-            <div class="showcase-item">📱<b>SMARTPHONES</b></div>
-            <div class="showcase-item">📺<b>SMART TVs</b></div>
-            <div class="showcase-item">💻<b>COMPUTERS</b></div>
-            <div class="showcase-item">🎧<b>ACCESSORIES</b></div>
-          </div>
+
+        <div class="product">
+            <div class="icon">💻</div>
+            <h3>Laptop Computer</h3>
+            <p>Reliable computers for work and school.</p>
+            <div class="price">$350</div>
+            <button onclick="addToCart('Laptop Computer',350)">
+                Add to Cart
+            </button>
         </div>
-      </div>
+
+        <div class="product">
+            <div class="icon">📱</div>
+            <h3>Smartphones</h3>
+            <p>Discover modern smartphones.</p>
+            <div class="price">$150</div>
+            <button onclick="addToCart('Smartphone',150)">
+                Add to Cart
+            </button>
+        </div>
+
+        <div class="product">
+            <div class="icon">🎧</div>
+            <h3>Headphones</h3>
+            <p>Enjoy clear and quality sound.</p>
+            <div class="price">$25</div>
+            <button onclick="addToCart('Headphones',25)">
+                Add to Cart
+            </button>
+        </div>
+
+        <div class="product">
+            <div class="icon">⌚</div>
+            <h3>Smart Watches</h3>
+            <p>Modern watches for everyday use.</p>
+            <div class="price">$40</div>
+            <button onclick="addToCart('Smart Watch',40)">
+                Add to Cart
+            </button>
+        </div>
+
+        <div class="product">
+            <div class="icon">🔊</div>
+            <h3>Bluetooth Speakers</h3>
+            <p>Powerful sound wherever you go.</p>
+            <div class="price">$35</div>
+            <button onclick="addToCart('Bluetooth Speaker',35)">
+                Add to Cart
+            </button>
+        </div>
+
     </div>
+</section>
 
-    <section id="categories">
-      <div class="section-head"><small>Browse our store</small><h2>Shop by category</h2><p>Technology for work, home, school and entertainment.</p></div>
-      <div class="categories">
-        <div class="category"><div class="icon">📱</div><h3>Smartphones</h3><p>Phones for every need</p></div>
-        <div class="category"><div class="icon">📺</div><h3>Smart TVs</h3><p>Bring entertainment home</p></div>
-        <div class="category"><div class="icon">💻</div><h3>Computers</h3><p>Laptops and more</p></div>
-        <div class="category"><div class="icon">🎧</div><h3>Accessories</h3><p>Useful everyday tech</p></div>
-      </div>
-    </section>
+<section class="section" id="cart">
+    <h2>Your Shopping Cart 🛒</h2>
 
-    <section id="products">
-      <div class="section-head"><small>Featured collection</small><h2>Explore our products</h2><p>Ask us about current models, stock and prices.</p></div>
-      <div class="products">
-        <article class="product"><div class="product-art">📱</div><div class="product-info"><h3>Smartphones</h3><p>Discover smartphones from popular brands.</p><a class="btn order-link" data-item="Smartphones" href="#contact">Ask for price</a></div></article>
-        <article class="product"><div class="product-art">📺</div><div class="product-info"><h3>Smart TVs</h3><p>Enjoy your favourite shows and entertainment.</p><a class="btn order-link" data-item="Smart TVs" href="#contact">Ask for price</a></div></article>
-        <article class="product"><div class="product-art">💻</div><div class="product-info"><h3>Computers & Laptops</h3><p>Technology for learning, work and creativity.</p><a class="btn order-link" data-item="Computers and laptops" href="#contact">Ask for price</a></div></article>
-        <article class="product"><div class="product-art">🎧</div><div class="product-info"><h3>Audio Accessories</h3><p>Headphones, earbuds, speakers and more.</p><a class="btn order-link" data-item="Audio accessories" href="#contact">Ask for price</a></div></article>
-        <article class="product"><div class="product-art">⌚</div><div class="product-info"><h3>Smartwatches</h3><p>Explore wearable technology and accessories.</p><a class="btn order-link" data-item="Smartwatches" href="#contact">Ask for price</a></div></article>
-        <article class="product"><div class="product-art">🔌</div><div class="product-info"><h3>Phone & Tech Accessories</h3><p>Chargers, cables, cases and useful extras.</p><a class="btn order-link" data-item="Phone and tech accessories" href="#contact">Ask for price</a></div></article>
-      </div>
-    </section>
-
-    <div class="banner">
-      <div><h2>Looking for a particular device?</h2><p>Contact HOME PEX to ask about product availability and current prices.</p></div>
-      <a class="btn btn-light" href="#contact">Get in touch</a>
-    </div>
-
-    <section id="contact">
-      <div class="about-contact">
-        <div class="info-card"><h2>About HOME PEX</h2><p>HOME PEX is an electronics store for customers looking for smartphones, Smart TVs, computers and technology accessories. We aim to make it easy for you to explore products and contact us with your questions.</p><p><strong>Your Technology, Our Priority.</strong></p></div>
-        <div class="info-card"><h2>Contact HOME PEX</h2>
-          <div class="contact-line">📍 Location: Buea, Cameroon</div>
-          <div class="contact-line">📞 Phone / WhatsApp: +237 651 316 548</div>
-          <p>Tap below to ask about a product or place an enquiry.</p>
-          <a class="btn" id="whatsapp-main" href="https://wa.me/237651316548?text=Hello%20HOME%20PEX%2C%20I%20would%20like%20to%20make%20an%20enquiry." target="_blank" rel="noopener">Chat on WhatsApp</a>
+    <div class="cart">
+        <div id="cartItems">
+            Your cart is empty.
         </div>
-      </div>
-    </section>
-  </main>
-  <footer><strong>HOME PEX</strong><br>Your Technology, Our Priority.<br><br>© <span id="year"></span> HOME PEX. All rights reserved.</footer>
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-    document.querySelectorAll('.order-link').forEach(function(button){
-      var item = button.getAttribute('data-item');
-      button.href = 'https://wa.me/237651316548?text=' + encodeURIComponent('Hello HOME PEX, I would like to ask about ' + item + '. Please share the available options and prices.');
-      button.target = '_blank';
-      button.rel = 'noopener';
+
+        <h3 id="total" style="margin-top:20px;">
+            Total: $0
+        </h3>
+    </div>
+</section>
+
+<section class="section" id="contact">
+    <h2>Place Your Order</h2>
+
+    <div class="order">
+
+        <input type="text" id="customerName"
+        placeholder="Your Full Name">
+
+        <input type="text" id="customerPhone"
+        placeholder="Your Phone Number">
+
+        <textarea id="customerAddress"
+        placeholder="Your Delivery Location"></textarea>
+
+        <button onclick="placeOrder()">
+            ORDER NOW ON WHATSAPP
+        </button>
+
+    </div>
+</section>
+
+<footer>
+    <h3>HOME PEX</h3>
+    <p>Your Trusted Electronics Store</p>
+    <p>Quality Products. Affordable Prices.</p>
+    <p>© 2026 HOME PEX. All Rights Reserved.</p>
+</footer>
+
+<script>
+
+let cart = [];
+
+function addToCart(name, price) {
+    cart.push({name, price});
+    updateCart();
+    alert(name + " added to your cart!");
+}
+
+function updateCart() {
+    let items = document.getElementById("cartItems");
+    let total = 0;
+
+    if (cart.length === 0) {
+        items.innerHTML = "Your cart is empty.";
+    } else {
+        items.innerHTML = "";
+
+        cart.forEach((item, index) => {
+            total += item.price;
+
+            items.innerHTML += `
+                <div class="cart-item">
+                    <span>${item.name} - $${item.price}</span>
+                    <button onclick="removeItem(${index})">
+                        Remove
+                    </button>
+                </div>
+            `;
+        });
+    }
+
+    document.getElementById("total").innerText =
+        "Total: $" + total;
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    updateCart();
+}
+
+function placeOrder() {
+
+    let name = document.getElementById("customerName").value;
+    let phone = document.getElementById("customerPhone").value;
+    let address = document.getElementById("customerAddress").value;
+
+    if (cart.length === 0) {
+        alert("Please add products to your cart first.");
+        return;
+    }
+
+    if (!name || !phone || !address) {
+        alert("Please complete all your details.");
+        return;
+    }
+
+    let message = "NEW HOME PEX ORDER\n\n";
+    message += "Customer: " + name + "\n";
+    message += "Phone: " + phone + "\n";
+    message += "Delivery Location: " + address + "\n\n";
+    message += "ORDER DETAILS:\n";
+
+    let total = 0;
+
+    cart.forEach(item => {
+        message += item.name + " - $" + item.price + "\n";
+        total += item.price;
     });
-  </script>
+
+    message += "\nTOTAL: $" + total;
+
+    let whatsappNumber = "237651316548";
+
+    let url = "https://wa.me/" + whatsappNumber +
+        "?text=" + encodeURIComponent(message);
+
+    window.open(url, "_blank");
+}
+
+</script>
+
 </body>
-</html>
+  </html>
