@@ -1,0 +1,525 @@
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason,
+    fetchLatestBaileysVersion,
+    makeCacheableSignalKeyStore,
+    Browsers,
+    downloadContentFromMessage
+} = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
+const pino = require('pino');
+const fs = require('fs-extra');
+const path = require('path');
+const qrcode = require('qrcode-terminal');
+const moment = require('moment-timezone');
+const os = require('os');
+
+// ==================== CONFIGURATION ====================
+const ownerNumber = '27836547695@s.whatsapp.net';
+const ownerName = 'Paxton';
+const botName = 'Jarvis-MD-V2';
+const devName = 'Paxton Mathebula';
+const prefix = '.';
+const sessionDir = './sessions';
+const tempDir = './temp';
+const databaseFile = './database.json';
+
+// Create temp directory
+if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+// Initialize database with all features
+let database = {
+    users: {},
+    groups: {},
+    economy: {},
+    bans: [],
+    filters: {},
+    welcome: {},
+    goodbye: {},
+    antilink: {},
+    antispam: {},
+    commandStats: {},
+    settings: {
+        public: true,
+        maintenance: false
+    }
+};
+
+// Load existing database if available
+if (fs.existsSync(databaseFile)) {
+    try {
+        const loaded = JSON.parse(fs.readFileSync(databaseFile));
+        database = { ...database, ...loaded };
+        if (!database.welcome) database.welcome = {};
+        if (!database.goodbye) database.goodbye = {};
+        if (!database.antilink) database.antilink = {};
+        if (!database.commandStats) database.commandStats = {};
+    } catch (e) {
+        console.log('📁 Creating new database');
+    }
+}
+
+const saveDatabase = () => {
+    fs.writeFileSync(databaseFile, JSON.stringify(database, null, 2));
+};
+
+// ==================== BOT LOGO ====================
+const botLogo = "https://i.postimg.cc/mrFR3WC0/1771259651391-015a2838-1c8e-4556-9706-d347e7e4b40d.png";
+
+// ==================== HELPERS ====================
+const isUrl = (text) => {
+    return text.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gi));
+};
+
+// ==================== STYLISH MENU ====================
+const getMenuStyle = async (sock, from) => {
+    const date = moment().tz('Africa/Johannesburg').format('DD/MM/YYYY');
+    const time = moment().tz('Africa/Johannesburg').format('HH:mm:ss');
+    const totalUsers = Object.keys(database.users).length;
+    const totalGroups = Object.keys(database.groups).length;
+    const uptime = process.uptime();
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = Math.floor(uptime % 60);
+    const memory = process.memoryUsage();
+    
+    // Send logo first
+    await sock.sendMessage(from, {
+        image: { url: botLogo },
+        caption: `╔══════════════════════════════════╗
+║     🤖 *JARVIS-MD-V2* 🤖        ║
+║     Developer: *${devName}* 👑   ║
+║        wa.me/27836547695         ║
+╚══════════════════════════════════╝`
+    });
+    
+    return `╭━━━❰ *📊 SYSTEM INFO* ❱━━━╮
+┃ 🤖 *Bot:* ${botName}
+┃ 👨‍💻 *Developer:* ${devName}
+┃ 👑 *Owner:* ${ownerName}
+┃ 📱 *Number:* ${ownerNumber.split('@')[0]}
+┃ ⏱️ *Uptime:* ${hours}h ${minutes}m ${seconds}s
+┃ 💾 *RAM:* ${(memory.rss / 1024 / 1024).toFixed(2)} MB
+┃ 👥 *Users:* ${totalUsers}
+┃ 👥 *Groups:* ${totalGroups}
+┃ 📅 *Date:* ${date}
+┃ ⏰ *Time:* ${time} SAST
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *📋 GENERAL* ❱━━━╮
+┃ ✦ ${prefix}menu
+┃ ✦ ${prefix}ping
+┃ ✦ ${prefix}info
+┃ ✦ ${prefix}owner
+┃ ✦ ${prefix}dev
+┃ ✦ ${prefix}runtime
+┃ ✦ ${prefix}profile
+┃ ✦ ${prefix}server
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *👥 GROUP* ❱━━━╮
+┃ ✦ ${prefix}tagall
+┃ ✦ ${prefix}hidetag [text]
+┃ ✦ ${prefix}grouplink
+┃ ✦ ${prefix}groupinfo
+┃ ✦ ${prefix}listadmin
+┃ ✦ ${prefix}kick @user
+┃ ✦ ${prefix}add 27xxxx
+┃ ✦ ${prefix}promote @user
+┃ ✦ ${prefix}demote @user
+┃ ✦ ${prefix}setname [name]
+┃ ✦ ${prefix}setdesc [desc]
+┃ ✦ ${prefix}closegroup
+┃ ✦ ${prefix}opengroup
+┃ ✦ ${prefix}welcome [on/off]
+┃ ✦ ${prefix}goodbye [on/off]
+┃ ✦ ${prefix}antilink [on/off]
+┃ ✦ ${prefix}filter [add/remove/list] [word]
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *🎮 FUN* ❱━━━╮
+┃ ✦ ${prefix}joke
+┃ ✦ ${prefix}fact
+┃ ✦ ${prefix}quote
+┃ ✦ ${prefix}say [text]
+┃ ✦ ${prefix}rate [thing]
+┃ ✦ ${prefix}roast @user
+┃ ✦ ${prefix}compliment @user
+┃ ✦ ${prefix}ship @user1 @user2
+┃ ✦ ${prefix}pick [a/b/c]
+┃ ✦ ${prefix}flipcoin
+┃ ✦ ${prefix}dice
+┃ ✦ ${prefix}rps [rock/paper/scissors]
+┃ ✦ ${prefix}truth
+┃ ✦ ${prefix}dare
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *🛠️ UTILITY* ❱━━━╮
+┃ ✦ ${prefix}calc [expression]
+┃ ✦ ${prefix}qr [text]
+┃ ✦ ${prefix}sticker
+┃ ✦ ${prefix}toimage
+┃ ✦ ${prefix}shorten [url]
+┃ ✦ ${prefix}base64 encode/decode [text]
+┃ ✦ ${prefix}binary encode/decode [text]
+┃ ✦ ${prefix}random [min] [max]
+┃ ✦ ${prefix}password [length]
+┃ ✦ ${prefix}uuid
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *👤 PAXTON* ❱━━━╮
+┃ ✦ ${prefix}paxton
+┃ ✦ ${prefix}callpaxton
+┃ ✦ ${prefix}paxtonbio
+┃ ✦ ${prefix}paxtonsocial
+┃ ✦ ${prefix}paxtonprojects
+┃ ✦ ${prefix}paxtonvibe
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *👑 OWNER* ❱━━━╮
+┃ ✦ ${prefix}stats
+┃ ✦ ${prefix}bc [message]
+┃ ✦ ${prefix}listgroups
+┃ ✦ ${prefix}cleartemp
+┃ ✦ ${prefix}restart
+┃ ✦ ${prefix}cpu
+┃ ✦ ${prefix}ram
+┃ ✦ ${prefix}listall
+┃ ✦ ${prefix}join [link]
+┃ ✦ ${prefix}leave
+┃ ✦ ${prefix}block [number]
+┃ ✦ ${prefix}unblock [number]
+┃ ✦ ${prefix}setprefix [!]
+┃ ✦ ${prefix}mode [public/private]
+┃ ✦ ${prefix}ban @user
+┃ ✦ ${prefix}unban @user
+╰━━━━━━━━━━━━━━╯
+
+╭━━━❰ *ℹ️ INFO* ❱━━━╮
+┃ Total Commands: 70+
+┃ Developer: *${devName}* 👑
+┃ wa.me/27836547695
+╰━━━━━━━━━━━━━━╯`;
+};
+
+// ==================== SESSION SETUP ====================
+async function connectToWhatsApp() {
+    console.log('╔══════════════════════════════════╗');
+    console.log('║     🤖 JARVIS-MD-V2 🤖          ║');
+    console.log(`║     Developer: ${devName} 👑      ║`);
+    console.log('║     wa.me/651316548           ║');
+    console.log('╚══════════════════════════════════╝\n');
+    console.log(`🚀 Starting ${botName}...`);
+    console.log(`👨‍💻 Developer: ${devName}`);
+    console.log(`👑 Owner: ${ownerName}`);
+    console.log('⏳ Please wait...\n');
+
+    const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
+    const { version } = await fetchLatestBaileysVersion();
+
+    const sock = makeWASocket({
+        version,
+        browser: Browsers.ubuntu('Chrome'),
+        auth: {
+            creds: state.creds,
+            keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' })),
+        },
+        printQRInTerminal: false,
+        logger: pino({ level: 'fatal' }),
+        generateHighQualityLinkPreview: true,
+        syncFullHistory: false
+    });
+
+    // ==================== GROUP PARTICIPANTS HANDLER ====================
+    sock.ev.on('group-participants.update', async (update) => {
+        const { id, participants, action } = update;
+        
+        // Welcome message
+        if (action === 'add' && database.welcome[id]) {
+            for (let participant of participants) {
+                const name = participant.split('@')[0];
+                await sock.sendMessage(id, {
+                    text: `🎉 *Welcome!* 🎉\n\n👋 Hello @${name}!\nWelcome to the group!\nEnjoy your stay!`,
+                    mentions: [participant]
+                });
+            }
+        }
+        
+        // Goodbye message
+        if (action === 'remove' && database.goodbye[id]) {
+            for (let participant of participants) {
+                const name = participant.split('@')[0];
+                await sock.sendMessage(id, {
+                    text: `👋 *Goodbye!* 👋\n\n@${name} has left the group.`,
+                    mentions: [participant]
+                });
+            }
+        }
+    });
+
+    // ==================== QR CODE HANDLER ====================
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, qr } = update;
+
+        if (qr) {
+            console.log('📱 Scan this QR code with WhatsApp:');
+            qrcode.generate(qr, { small: true });
+            console.log('\n⏳ Waiting for scan...\n');
+        }
+
+        if (connection === 'open') {
+            console.log('✅ Connected to WhatsApp!');
+            console.log(`🤖 Bot: ${botName}`);
+            console.log(`👨‍💻 Developer: ${devName}`);
+            console.log(`👑 Owner: ${ownerName}`);
+            console.log(`📱 Number: ${ownerNumber.split('@')[0]}`);
+            console.log(`⏰ Time: ${moment().tz('Africa/Johannesburg').format('YYYY-MM-DD HH:mm:ss')} SAST\n`);
+            
+            await sock.sendMessage(ownerNumber, {
+                image: { url: botLogo },
+                caption: `🤖 *${botName}* is now online!\n\n👨‍💻 Developer: ${devName}\n👑 Owner: ${ownerName}\n📱 Powered by Paxton\n⏰ Time: ${moment().tz('Africa/Johannesburg').format('YYYY-MM-DD HH:mm:ss')}`
+            });
+        }
+
+        if (connection === 'close') {
+            const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+            console.log('❌ Connection closed. Reason:', reason);
+            
+            if (reason === DisconnectReason.loggedOut) {
+                console.log('🚪 Bot logged out. Delete session folder and restart.');
+                process.exit();
+            } else {
+                console.log('🔄 Reconnecting in 5 seconds...');
+                setTimeout(connectToWhatsApp, 5000);
+            }
+        }
+    });
+
+    // ==================== MESSAGE HANDLER ====================
+    sock.ev.on('messages.upsert', async ({ messages, type }) => {
+        const msg = messages[0];
+        
+        if (!msg.message || msg.key.fromMe) return;
+        
+        const from = msg.key.remoteJid;
+        const sender = msg.key.participant || from;
+        const isGroup = from.endsWith('@g.us');
+        const senderNumber = sender.split('@')[0];
+        
+        // Initialize user in database
+        if (!database.users[sender]) {
+            database.users[sender] = {
+                name: '',
+                balance: 1000,
+                inventory: [],
+                daily: 0,
+                joined: Date.now(),
+                messages: 0,
+                level: 1,
+                xp: 0,
+                banned: false
+            };
+            saveDatabase();
+        }
+        
+        // Check if user is banned
+        if (database.users[sender]?.banned && !isOwner) return;
+        
+        database.users[sender].messages++;
+        
+        let text = '';
+        if (msg.message.conversation) {
+            text = msg.message.conversation;
+        } else if (msg.message.extendedTextMessage) {
+            text = msg.message.extendedTextMessage.text;
+        } else if (msg.message.imageMessage) {
+            text = msg.message.imageMessage.caption || '';
+        } else {
+            return;
+        }
+        
+        if (!text) return;
+        
+        const isOwner = sender === ownerNumber;
+        
+        // ===== ANTILINK CHECK =====
+        if (isGroup && database.antilink[from] && !isOwner) {
+            const links = text.match(/(https?:\/\/[^\s]+)/gi);
+            if (links) {
+                await sock.sendMessage(from, { text: '❌ Links are not allowed in this group!' });
+                try {
+                    await sock.groupParticipantsUpdate(from, [sender], 'remove');
+                } catch (e) {}
+                return;
+            }
+        }
+        
+        // ===== FILTER CHECK =====
+        if (isGroup && database.filters[from] && !isOwner) {
+            const filtered = database.filters[from].some(word => 
+                text.toLowerCase().includes(word.toLowerCase())
+            );
+            if (filtered) {
+                await sock.sendMessage(from, { text: '❌ That word is not allowed in this group!' });
+                return;
+            }
+        }
+        
+        if (text.startsWith(prefix)) {
+            const args = text.slice(prefix.length).trim().split(/ +/);
+            const command = args.shift().toLowerCase();
+            const fullArgs = args.join(' ');
+            
+            // Track command usage
+            if (!database.commandStats) database.commandStats = {};
+            if (!database.commandStats[command]) database.commandStats[command] = 0;
+            database.commandStats[command]++;
+            saveDatabase();
+            
+            console.log(`⚡ Command from ${senderNumber}: ${command}`);
+            
+            try {
+                switch(command) {
+                    // ===== MENU =====
+                    case 'menu':
+                    case 'help':
+                        const menuText = await getMenuStyle(sock, from);
+                        await sock.sendMessage(from, { text: menuText });
+                        break;
+
+                    // ===== GENERAL =====
+                    case 'ping':
+                        const pingStart = Date.now();
+                        await sock.sendMessage(from, { text: '🏓 Pong!' });
+                        const pingEnd = Date.now();
+                        await sock.sendMessage(from, { 
+                            text: `⚡ Response: ${pingEnd - pingStart}ms` 
+                        });
+                        break;
+
+                    case 'info':
+                        await sock.sendMessage(from, {
+                            text: `🤖 *Bot Information*\n\n` +
+                                  `📛 *Name:* ${botName}\n` +
+                                  `👨‍💻 *Developer:* ${devName}\n` +
+                                  `👑 *Owner:* ${ownerName}\n` +
+                                  `📱 *Number:* ${ownerNumber.split('@')[0]}\n` +
+                                  `⚙️ *Version:* 7.0.0 ULTIMATE\n` +
+                                  `💾 *RAM:* ${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)} MB\n` +
+                                  `👥 *Users:* ${Object.keys(database.users).length}\n` +
+                                  `👥 *Groups:* ${Object.keys(database.groups).length}\n` +
+                                  `⚡ *Commands Used:* ${Object.values(database.commandStats).reduce((a, b) => a + b, 0)}`
+                        });
+                        break;
+
+                    case 'owner':
+                        await sock.sendMessage(from, {
+                            text: `👑 *Owner Information*\n\n` +
+                                  `📛 *Name:* ${ownerName}\n` +
+                                  `📱 *Number:* ${ownerNumber.split('@')[0]}\n` +
+                                  `💬 *Chat:* https://wa.me/${ownerNumber.split('@')[0]}`
+                        });
+                        break;
+
+                    case 'dev':
+                        await sock.sendMessage(from, {
+                            text: `👨‍💻 *Developer Information*\n\n` +
+                                  `📛 *Name:* ${devName}\n` +
+                                  `🤖 *Bot:* ${botName}\n` +
+                                  `📱 *Contact:* wa.me/27836547695\n` +
+                                  `⭐ *Message:* "Building the future of WhatsApp bots!"`
+                        });
+                        break;
+
+                    case 'runtime':
+                        const runTime = process.uptime();
+                        const rHours = Math.floor(runTime / 3600);
+                        const rMinutes = Math.floor((runTime % 3600) / 60);
+                        const rSeconds = Math.floor(runTime % 60);
+                        await sock.sendMessage(from, { 
+                            text: `⏱️ *Bot Runtime*\n\n${rHours}h ${rMinutes}m ${rSeconds}s` 
+                        });
+                        break;
+
+                    case 'profile':
+                        const userData = database.users[sender];
+                        await sock.sendMessage(from, {
+                            text: `👤 *Your Profile*\n\n` +
+                                  `📱 *Number:* ${senderNumber}\n` +
+                                  `💰 *Balance:* ${userData.balance} coins\n` +
+                                  `💬 *Messages:* ${userData.messages}\n` +
+                                  `📦 *Inventory:* ${userData.inventory.length} items\n` +
+                                  `📈 *Level:* ${userData.level}\n` +
+                                  `✨ *XP:* ${userData.xp}\n` +
+                                  `📅 *Joined:* ${moment(userData.joined).format('DD/MM/YYYY')}`
+                        });
+                        break;
+
+                    case 'server':
+                        const serverUptime = os.uptime();
+                        const sHours = Math.floor(serverUptime / 3600);
+                        const sMinutes = Math.floor((serverUptime % 3600) / 60);
+                        await sock.sendMessage(from, {
+                            text: `🖥️ *Server Info*\n\n` +
+                                  `💻 *Platform:* ${os.platform()}\n` +
+                                  `🖥️ *CPU:* ${os.cpus()[0].model}\n` +
+                                  `⚡ *Cores:* ${os.cpus().length}\n` +
+                                  `💾 *Total RAM:* ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB\n` +
+                                  `⏱️ *Server Uptime:* ${sHours}h ${sMinutes}m`
+                        });
+                        break;
+
+                    // ===== GROUP COMMANDS =====
+                    case 'tagall':
+                        if (!isGroup) {
+                            await sock.sendMessage(from, { text: '❌ This command only works in groups!' });
+                            return;
+                        }
+                        
+                        try {
+                            const groupMetadata = await sock.groupMetadata(from);
+                            let mentions = [];
+                            let tagMessage = `👥 *Tag All Members*\n\n`;
+                            
+                            for (let i = 0; i < groupMetadata.participants.length; i++) {
+                                const member = groupMetadata.participants[i];
+                                tagMessage += `${i + 1}. @${member.id.split('@')[0]}\n`;
+                                mentions.push(member.id);
+                            }
+                            
+                            await sock.sendMessage(from, { text: tagMessage, mentions });
+                        } catch (e) {
+                            await sock.sendMessage(from, { text: '❌ Failed to tag members' });
+                        }
+                        break;
+
+                    case 'hidetag':
+                        if (!isGroup) {
+                            await sock.sendMessage(from, { text: '❌ This command only works in groups!' });
+                            return;
+                        }
+                        
+                        try {
+                            const hideMessage = fullArgs || '👥 *Hidden Tag*';
+                            const groupMetadata = await sock.groupMetadata(from);
+                            const mentions = groupMetadata.participants.map(p => p.id);
+                            
+                            await sock.sendMessage(from, { text: hideMessage, mentions });
+                        } catch (e) {
+                            await sock.sendMessage(from, { text: '❌ Failed to send hidden tag' });
+                        }
+                        break;
+
+                    case 'grouplink':
+                        if (!isGroup) {
+                            await sock.sendMessage(from, { text: '❌ This command only works in groups!' });
+                            return;
+                        }
+                        
+                        try {
+                            const groupCode = await sock.groupInviteCode(from);
+                            await sock.sendMessage(from, {
+                                text: `🔗 *Group Link*\n\nhttps://chat.whatsapp.com/${groupCode}`
+                            });
+                        } catch
